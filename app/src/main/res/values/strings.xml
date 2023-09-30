@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">capstone2</string>
+    <string name="signup">회원가입</string>
+    <string name="login">로그인</string>
+    <string name="password">비밀번호</string>
+    <string name="email">이메일</string>
+    <string name="activity_login_title">회원 로그인</string>
+    <string name="activity_signup_title">회원가입</string>
+    <string name="password_confirm">비밀번호 확인</string>
 </resources>

@@ -17,12 +17,13 @@ class SignupActivity : AppCompatActivity() {
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        checkPasswordConfirm()
         checkAllInputConfirm()
 
         binding.btnSignup.setOnClickListener {
             val email = binding.editEmail.text
             val password = binding.editPassword.text
+
+            finish()
         }
 
         binding.titleBar.btnBack.setOnClickListener{
