@@ -2,15 +2,15 @@ package knu.dong.capstone2
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import knu.dong.capstone2.databinding.ActivityLoginBinding
+import knu.dong.capstone2.databinding.ActivitySignupBinding
 
-class LoginActivity : AppCompatActivity() {
+class SignupActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding = ActivityLoginBinding.inflate(layoutInflater)
+        val binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.btnSignup.setOnClickListener {
@@ -19,6 +19,8 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.titleBar.btnBack.visibility = View.INVISIBLE
+        binding.titleBar.btnBack.setOnClickListener{
+            onBackPressed()
+        }
     }
 }
