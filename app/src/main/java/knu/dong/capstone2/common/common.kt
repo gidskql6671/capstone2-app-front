@@ -1,4 +1,4 @@
-package knu.dong.capstone2
+package knu.dong.capstone2.common
 
 import android.content.Context
 import android.graphics.Color

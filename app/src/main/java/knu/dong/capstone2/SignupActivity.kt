@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
 import androidx.appcompat.app.AppCompatActivity
+import knu.dong.capstone2.common.getThemeColor
 import knu.dong.capstone2.databinding.ActivitySignupBinding
 
 class SignupActivity : AppCompatActivity() {
