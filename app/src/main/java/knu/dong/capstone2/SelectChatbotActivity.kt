@@ -5,9 +5,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView.OnItemClickListener
 import androidx.appcompat.app.AppCompatActivity
-import knu.dong.capstone2.adapter.RolesAdapter
+import knu.dong.capstone2.adapter.ChatbotListAdapter
 import knu.dong.capstone2.common.HttpRequestHelper
 import knu.dong.capstone2.databinding.ActivitySelectChatbotBinding
+import knu.dong.capstone2.dto.GetChatbotsDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,18 +42,17 @@ class SelectChatbotActivity: AppCompatActivity(), CoroutineScope {
 
     private fun getChatbotRoles() {
         launch(Dispatchers.Main) {
-            val roles: List<String> =
-                HttpRequestHelper()
-                    .get<List<String>>("api/chatbots/roles")
-                    ?: emptyList()
+            val res = HttpRequestHelper()
+                .get("api/chatbots", GetChatbotsDto::class.java)
+                ?: GetChatbotsDto()
 
-            val adapter = RolesAdapter(this@SelectChatbotActivity, roles)
+            val adapter = ChatbotListAdapter(this@SelectChatbotActivity, res.chatbots)
             binding.listView.adapter = adapter
 
             binding.listView.onItemClickListener =
                 OnItemClickListener { _, _, position, _ ->
                     val intent = Intent(this@SelectChatbotActivity, ChatbotActivity::class.java)
-                    intent.putExtra("role", adapter.getItem(position))
+                    intent.putExtra("chatbot", adapter.getItem(position))
 
                     startActivity(intent)
                 }

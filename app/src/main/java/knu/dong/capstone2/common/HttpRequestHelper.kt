@@ -3,7 +3,6 @@ package knu.dong.capstone2.common
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -15,7 +14,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import knu.dong.capstone2.BuildConfig
-import knu.dong.capstone2.dto.HttpApiResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -28,7 +26,7 @@ class HttpRequestHelper {
     }
     private val domain: String = BuildConfig.SERVER_URL
 
-    suspend fun <T> get(path: String, block: HttpRequestBuilder.() -> Unit = {}): T? =
+    suspend fun <T> get(path: String, clazz: Class<T>, block: HttpRequestBuilder.() -> Unit = {}): T? =
         withContext(Dispatchers.IO) {
             try {
                 val url = "$domain/$path"
@@ -38,11 +36,9 @@ class HttpRequestHelper {
 
                 if (responseStatus == HttpStatusCode.OK) {
                     val jsonObject = JsonParser.parseString(response.bodyAsText()).asJsonObject
+                    val httpApiResponse = Gson().fromJson(jsonObject, clazz)
 
-                    val type = object : TypeToken<HttpApiResponse<T>>() {}.type
-                    val httpApiResponse = Gson().fromJson<HttpApiResponse<T>>(jsonObject, type)
-
-                    httpApiResponse.data
+                    httpApiResponse
                 } else {
                     Log.e("${TAG}_get", "$responseStatus")
 
@@ -56,7 +52,7 @@ class HttpRequestHelper {
             }
         }
 
-    suspend fun <T> post(path: String, block: HttpRequestBuilder.() -> Unit = {}): T? =
+    suspend fun <T> post(path: String, clazz: Class<T>, block: HttpRequestBuilder.() -> Unit = {}): T? =
         withContext(Dispatchers.IO) {
             try {
                 val url = "$domain/$path"
@@ -66,11 +62,9 @@ class HttpRequestHelper {
 
                 if (responseStatus.value / 100 == 2) {
                     val jsonObject = JsonParser.parseString(response.bodyAsText()).asJsonObject
+                    val httpApiResponse = Gson().fromJson(jsonObject, clazz)
 
-                    val type = object : TypeToken<HttpApiResponse<T>>() {}.type
-                    val httpApiResponse = Gson().fromJson<HttpApiResponse<T>>(jsonObject, type)
-
-                    httpApiResponse.data
+                    httpApiResponse
                 } else {
                     Log.e("${TAG}_get", "$responseStatus")
 
