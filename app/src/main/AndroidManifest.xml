@@ -26,6 +26,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".SelectChatbotActivity" />
+        <activity android:name=".ChatbotActivity" />
 
     </application>
 </manifest>

@@ -1,9 +1,9 @@
 package knu.dong.capstone2
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView.OnItemClickListener
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import knu.dong.capstone2.adapter.RolesAdapter
 import knu.dong.capstone2.common.HttpRequestHelper
@@ -51,12 +51,11 @@ class SelectChatbotActivity: AppCompatActivity(), CoroutineScope {
 
             binding.listView.onItemClickListener =
                 OnItemClickListener { _, _, position, _ ->
-                    Toast.makeText(
-                        applicationContext,
-                        adapter.getItem(position),
-                        Toast.LENGTH_LONG
-                    ).show()
-                };
+                    val intent = Intent(this@SelectChatbotActivity, ChatbotActivity::class.java)
+                    intent.putExtra("role", adapter.getItem(position))
+
+                    startActivity(intent)
+                }
         }
     }
 }
