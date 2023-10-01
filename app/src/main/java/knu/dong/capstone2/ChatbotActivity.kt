@@ -92,13 +92,17 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
 
     private fun getChatbotChats(chatbot: Chatbot) {
         launch(Dispatchers.Main) {
-            val resChats: List<Chat> = emptyList()
+            val resChats =
                 HttpRequestHelper()
                     .get("api/chatbots/chats", GetChatsDto::class.java)
                     ?: GetChatsDto()
 
-            chats.addAll(resChats)
-            binding.recyclerView.adapter?.notifyItemRangeInserted(0, chats.size)
+            chats.addAll(resChats.chats)
+            binding.recyclerView.apply {
+                adapter?.notifyItemRangeInserted(0, chats.size)
+                scrollToPosition(chats.size - 1)
+            }
+
         }
     }
 
@@ -110,7 +114,10 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
             }
 
             chats.add(Chat(resChat?.reply ?: "다시 시도해주세요.", false))
-            binding.recyclerView.adapter?.notifyItemInserted(chats.size - 1)
+            binding.recyclerView.apply {
+                adapter?.notifyItemInserted(chats.size - 1)
+                scrollToPosition(chats.size - 1)
+            }
         }
     }
 }
