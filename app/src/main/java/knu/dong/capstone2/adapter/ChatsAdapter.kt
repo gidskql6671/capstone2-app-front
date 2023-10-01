@@ -4,6 +4,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import knu.dong.capstone2.common.dp
 import knu.dong.capstone2.databinding.ListviewItemChatBinding
 import knu.dong.capstone2.dto.Chat
 
@@ -28,12 +29,20 @@ class ChatsAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(chat: Chat) {
             binding.message.text = chat.content
-            binding.messageContainer.gravity =
-                if (chat.isUser) {
-                    Gravity.START
-                } else {
-                    Gravity.END
+
+            if (chat.isUser) {
+                binding.messageContainer.apply {
+                    gravity = Gravity.END
+                    setPaddingRelative(60.dp, 10.dp, 10.dp, 10.dp)
                 }
+
+            } else {
+                binding.messageContainer.apply {
+                    gravity = Gravity.START
+                    setPaddingRelative(10.dp, 10.dp, 60.dp, 10.dp)
+                }
+            }
+
         }
     }
 }

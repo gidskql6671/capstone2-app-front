@@ -1,6 +1,7 @@
 package knu.dong.capstone2
 
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.ktor.client.request.setBody
@@ -44,14 +45,21 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
             onBackPressed()
         }
         binding.btnSend.setOnClickListener {
-            val message = binding.editQuestion.text
+            val message = binding.editQuestion.text.toString()
             if (message.isBlank()) {
                 return@setOnClickListener
             }
+            binding.editQuestion.setText("")
+            val manager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            manager.hideSoftInputFromWindow(
+                currentFocus!!.windowToken,
+                InputMethodManager.HIDE_NOT_ALWAYS
+            )
 
-            chats.add(Chat(message.toString(), true))
+
+            chats.add(Chat(message, true))
             binding.recyclerView.adapter?.notifyItemInserted(chats.size - 1)
-            sendChat(role, message.toString())
+            sendChat(role, message)
         }
 
         getChatbotChats(role)
