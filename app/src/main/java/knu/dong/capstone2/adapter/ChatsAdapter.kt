@@ -1,33 +1,39 @@
 package knu.dong.capstone2.adapter
 
-import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
+import androidx.recyclerview.widget.RecyclerView
 import knu.dong.capstone2.databinding.ListviewItemChatBinding
 import knu.dong.capstone2.dto.Chat
 
 class ChatsAdapter(
-    private val context: Context,
-    private val data: List<Chat>
-): BaseAdapter() {
-    private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+    val datas: MutableList<Chat> = mutableListOf()
+) : RecyclerView.Adapter<ChatsAdapter.ViewHolder>() {
 
-    override fun getCount(): Int = data.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding =
+            ListviewItemChatBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
-    override fun getItem(position: Int): Chat = data[position]
+        return ViewHolder(binding)
+    }
 
-    override fun getItemId(position: Int): Long = position.toLong()
+    override fun getItemCount(): Int = datas.size
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val binding = ListviewItemChatBinding.inflate(layoutInflater)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(datas[position])
+    }
 
-        binding.message.text = data[position].content
-        binding.messageContainer.gravity =
-            if (data[position].isUser) { Gravity.START } else { Gravity.END }
-
-        return binding.root
+    inner class ViewHolder(private val binding: ListviewItemChatBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(chat: Chat) {
+            binding.message.text = chat.content
+            binding.messageContainer.gravity =
+                if (chat.isUser) {
+                    Gravity.START
+                } else {
+                    Gravity.END
+                }
+        }
     }
 }
