@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.readText
@@ -20,12 +21,12 @@ class HttpRequestHelper {
     private val client: HttpClient = HttpClient(CIO)
     private val domain: String = BuildConfig.SERVER_URL
 
-    suspend fun <T> get(path: String): T? =
+    suspend fun <T> get(path: String, block: HttpRequestBuilder.() -> Unit = {}): T? =
         withContext(Dispatchers.IO) {
             try {
                 val url = "$domain/$path"
 
-                val response: HttpResponse = client.get(url)
+                val response: HttpResponse = client.get(url, block)
                 val responseStatus = response.status
 
                 if (responseStatus == HttpStatusCode.OK) {
