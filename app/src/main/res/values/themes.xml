@@ -20,8 +20,13 @@
 
         <item name="colorTitleBar">@color/titleBar</item>
         <item name="colorTitleBarText">@color/white</item>
+
         <item name="colorDisabledButton">@color/whiteGray</item>
         <item name="colorDisabledButtonText">@color/white</item>
+        <item name="colorEnabledButton">@color/primary</item>
+        <item name="colorEnabledButtonText">@color/white</item>
+        <item name="colorPressedButton">@color/primaryMoreDark</item>
+        <item name="colorPressedButtonText">@color/white</item>
     </style>
 
     <style name="Theme.Capstone2" parent="Base.Theme.Capstone2" />

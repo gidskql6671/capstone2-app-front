@@ -4,4 +4,8 @@
     <attr format="color" name="colorTitleBarText" />
     <attr format="color" name="colorDisabledButton" />
     <attr format="color" name="colorDisabledButtonText" />
+    <attr format="color" name="colorEnabledButton" />
+    <attr format="color" name="colorEnabledButtonText" />
+    <attr format="color" name="colorPressedButton" />
+    <attr format="color" name="colorPressedButtonText" />
 </resources>

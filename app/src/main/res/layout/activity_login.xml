@@ -47,8 +47,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
+            android:padding="10dp"
+            android:background="@drawable/confirm_button"
             android:text="@string/login"
-            android:textColor="@color/white"
+            android:textColor="@color/confirm_button_text"
             android:textSize="16sp"
             android:textStyle="bold" />
 
