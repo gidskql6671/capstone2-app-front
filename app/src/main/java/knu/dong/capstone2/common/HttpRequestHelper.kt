@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -18,13 +19,29 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class HttpRequestHelper {
-    private val TAG = "HttpRequestHelper"
-    private val client: HttpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
+    companion object {
+        private val client: HttpClient = HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json()
+            }
+            install(HttpCookies)
         }
     }
+
+    private val TAG = "HttpRequestHelper"
     private val domain: String = BuildConfig.SERVER_URL
+
+
+    suspend fun get(path: String, block: HttpRequestBuilder.() -> Unit = {}): HttpResponse? =
+        withContext(Dispatchers.IO) {
+            try {
+                client.get("$domain/$path", block)
+            } catch (err: Exception) {
+                Log.e("${TAG}_get", err.toString())
+
+                null
+            }
+        }
 
     suspend fun <T> get(path: String, clazz: Class<T>, block: HttpRequestBuilder.() -> Unit = {}): T? =
         withContext(Dispatchers.IO) {
@@ -46,6 +63,17 @@ class HttpRequestHelper {
                 }
             }
             catch (err: Exception) {
+                Log.e("${TAG}_get", err.toString())
+
+                null
+            }
+        }
+
+    suspend fun post(path: String, block: HttpRequestBuilder.() -> Unit = {}): HttpResponse? =
+        withContext(Dispatchers.IO) {
+            try {
+                client.post("$domain/$path", block)
+            } catch (err: Exception) {
                 Log.e("${TAG}_get", err.toString())
 
                 null

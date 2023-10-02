@@ -6,8 +6,14 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import knu.dong.capstone2.common.HttpRequestHelper
 import knu.dong.capstone2.databinding.ActivityLoginBinding
+import knu.dong.capstone2.dto.LoginDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,10 +42,21 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         binding.titleBar.btnBack.visibility = View.INVISIBLE
 
         binding.btnLogin.setOnClickListener {
+            val email = binding.editEmail.text.toString()
+            val password = binding.editPassword.text.toString()
 
+            if (!validateEmail(email)) {
+                Toast.makeText(this, "이메일 형식이 맞지 않습니다.", Toast.LENGTH_SHORT).show()
+            }
+            else if (!validatePassword(password)) {
+                Toast.makeText(this, "비밀번호 입력창이 비어있습니다.", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                login(email, password)
+            }
         }
 
-        checkAllInputConfirm()
+        initTextWatcher()
     }
 
     override fun onDestroy() {
@@ -47,7 +64,7 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         job.cancel()
     }
 
-    private fun checkAllInputConfirm() {
+    private fun initTextWatcher() {
         val textWatcher = object: TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -57,12 +74,9 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
 
             override fun afterTextChanged(p0: Editable?) {
                 val email = binding.editEmail.text.toString()
-                val emailPass = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-
                 val password = binding.editPassword.text.toString()
-                val passwordPass = password.isNotBlank()
 
-                binding.btnLogin.isEnabled = emailPass && passwordPass
+                binding.btnLogin.isEnabled = validateEmail(email) && validatePassword(password)
             }
         }
 
@@ -70,11 +84,26 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         binding.editPassword.addTextChangedListener(textWatcher)
     }
 
-    private fun login() {
+    private fun validateEmail(email: String): Boolean =
+        email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+    private fun validatePassword(password: String): Boolean = password.isNotBlank()
+
+    private fun login(email: String, password: String) {
         launch(Dispatchers.Main) {
-//            val res = HttpRequestHelper()
-//                .get("api/users/login", GetChatbotsDto::class.java)
-//                ?: GetChatbotsDto()
+            val res = HttpRequestHelper().post("api/users/login"){
+                contentType(ContentType.Application.Json)
+                setBody(LoginDto(email, password))
+            }
+
+            if (res?.status?.value?.div(100) == 2) {
+                val intent = Intent(this@LoginActivity, SelectChatbotActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+            else {
+                Toast.makeText(this@LoginActivity, "로그인에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
