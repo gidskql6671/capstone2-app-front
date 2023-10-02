@@ -28,9 +28,9 @@ class ChatsAdapter(
     inner class ViewHolder(private val binding: ListviewItemChatBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(chat: Chat) {
-            binding.message.text = chat.content
+            binding.message.text = chat.message
 
-            if (chat.isUser) {
+            if (chat.isUserMessage) {
                 binding.messageContainer.apply {
                     gravity = Gravity.END
                     setPaddingRelative(60.dp, 10.dp, 10.dp, 10.dp)

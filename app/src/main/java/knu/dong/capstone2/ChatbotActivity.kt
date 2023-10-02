@@ -3,6 +3,7 @@ package knu.dong.capstone2
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -94,9 +95,14 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
         launch(Dispatchers.Main) {
             val resChats =
                 HttpRequestHelper()
-                    .get("api/chatbots/chats", GetChatsDto::class.java)
+                    .get("api/chatbots/chats", GetChatsDto::class.java) {
+                        url {
+                            parameters.append("chatbotId", "65167642422afe723c440948")
+                        }
+                    }
                     ?: GetChatsDto()
 
+            Log.d("dong", resChats.toString())
             chats.addAll(resChats.chats)
             binding.recyclerView.apply {
                 adapter?.notifyItemRangeInserted(0, chats.size)
