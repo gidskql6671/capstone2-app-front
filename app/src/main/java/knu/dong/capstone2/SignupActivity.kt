@@ -1,12 +1,10 @@
 package knu.dong.capstone2
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
 import androidx.appcompat.app.AppCompatActivity
-import knu.dong.capstone2.common.getThemeColor
 import knu.dong.capstone2.databinding.ActivitySignupBinding
 
 class SignupActivity : AppCompatActivity() {
@@ -48,16 +46,7 @@ class SignupActivity : AppCompatActivity() {
                 val confirmPassword = binding.editPasswordConfirm.text.toString()
                 val passwordPass = password.isNotBlank() && password == confirmPassword
 
-                if (emailPass && passwordPass) {
-                    binding.btnSignup.backgroundTintList = ColorStateList.valueOf(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
-                    binding.btnSignup.setTextColor(getThemeColor(com.google.android.material.R.attr.colorOnPrimary))
-                    binding.btnSignup.isEnabled = true
-                }
-                else {
-                    binding.btnSignup.backgroundTintList = ColorStateList.valueOf(getThemeColor(R.attr.colorDisabledButton))
-                    binding.btnSignup.setTextColor(getThemeColor(R.attr.colorDisabledButtonText))
-                    binding.btnSignup.isEnabled = false
-                }
+                binding.btnSignup.isEnabled = emailPass && passwordPass
             }
         }
 
