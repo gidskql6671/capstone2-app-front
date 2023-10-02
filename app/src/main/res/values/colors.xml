@@ -12,4 +12,5 @@
     <color name="textColor">@color/black</color>
     <color name="darkModeToggle">@color/black</color>
     <color name="backBtn">@color/white</color>
+    <color name="titleBar">#A6FF7A00</color>
 </resources>
