@@ -52,7 +52,8 @@
             android:text="@string/login"
             android:textColor="@color/confirm_button_text"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:enabled="false" />
 
         <TextView
             android:id="@+id/btnSignup"
