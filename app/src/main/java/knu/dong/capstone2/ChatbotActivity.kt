@@ -3,14 +3,18 @@ package knu.dong.capstone2
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.socket.emitter.Emitter
 import knu.dong.capstone2.adapter.ChatsAdapter
 import knu.dong.capstone2.common.HttpRequestHelper
+import knu.dong.capstone2.common.WebSocketHelper
 import knu.dong.capstone2.common.getSerializable
 import knu.dong.capstone2.databinding.ActivityChatbotBinding
 import knu.dong.capstone2.dto.Chat
@@ -123,5 +127,27 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
                 scrollToPosition(chats.size - 1)
             }
         }
+    }
+
+    private fun sendChatUsingSocket(chatbot: Chatbot, message: String) {
+        launch(Dispatchers.Main) {
+            try {
+                val socket = WebSocketHelper().socket
+                socket.connect()
+
+                val chatbotId = chatbot.id
+                socket.on("error", onMessage)
+                socket.on("chats/messages/$chatbotId", onMessage)
+
+                val sendData = Gson().toJson(SendChatReqDto(chatbotId, message))
+                socket.emit("chats/messages", sendData)
+            }catch (err: Exception) {
+                Log.d("dong", err.stackTraceToString())
+            }
+        }
+    }
+
+    val onMessage = Emitter.Listener { args ->
+        Log.d("dong", args[0].toString())
     }
 }

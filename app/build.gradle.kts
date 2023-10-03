@@ -21,6 +21,8 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "SERVER_URL", "\"http://10.0.2.2:8080\"")
+            buildConfigField("String", "WEBSOCKET_HOST", "\"http://10.0.2.2\"")
+            buildConfigField("int", "WEBSOCKET_PORT", "8081")
         }
 
         release {
@@ -55,6 +57,9 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:2.3.3")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+    implementation("io.socket:socket.io-client:2.1.0") {
+        exclude(group = "org.json", module = "json")
+    }
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
     implementation("com.google.code.gson:gson:2.8.9")
