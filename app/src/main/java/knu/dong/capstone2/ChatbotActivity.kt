@@ -75,9 +75,14 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
 
 
             chats.add(Chat(message, true))
-            binding.recyclerView.adapter?.notifyItemInserted(chats.size - 1)
-            sendChat(chatbot, message)
+            binding.recyclerView.apply {
+                adapter?.notifyItemInserted(chats.size - 1)
+                smoothScrollToPosition(chats.size - 1)
+            }
+//            sendChat(chatbot, message)
+            sendChatUsingSocket(chatbot, message)
         }
+
 
         getChatbotChats(chatbot)
     }
@@ -108,7 +113,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
             chats.addAll(resChats.chats)
             binding.recyclerView.apply {
                 adapter?.notifyItemRangeInserted(0, chats.size)
-                scrollToPosition(chats.size - 1)
+                smoothScrollToPosition(chats.size - 1)
             }
 
         }
@@ -124,11 +129,12 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
             chats.add(Chat(resChat?.reply ?: "다시 시도해주세요.", false))
             binding.recyclerView.apply {
                 adapter?.notifyItemInserted(chats.size - 1)
-                scrollToPosition(chats.size - 1)
+                smoothScrollToPosition(chats.size - 1)
             }
         }
     }
 
+    private var isFirst = true
     private fun sendChatUsingSocket(chatbot: Chatbot, message: String) {
         launch(Dispatchers.Main) {
             try {
@@ -136,9 +142,10 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
                 socket.connect()
 
                 val chatbotId = chatbot.id
-                socket.on("error", onMessage)
-                socket.on("chats/messages/$chatbotId", onMessage)
+                socket.on("error", onErrorMessage)
+                socket.on("chats/messages/$chatbotId", onChatbotMessage)
 
+                isFirst = true
                 val sendData = Gson().toJson(SendChatReqDto(chatbotId, message))
                 socket.emit("chats/messages", sendData)
             }catch (err: Exception) {
@@ -147,7 +154,31 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
         }
     }
 
-    val onMessage = Emitter.Listener { args ->
-        Log.d("dong", args[0].toString())
+    private val onChatbotMessage = Emitter.Listener { args ->
+        launch(Dispatchers.Main) {
+            if (isFirst) {
+                chats.add(Chat(args[0].toString(), false))
+                binding.recyclerView.apply {
+                    adapter?.notifyItemInserted(chats.size - 1)
+                    smoothScrollToPosition(chats.size - 1)
+                }
+                isFirst = false
+
+                return@launch
+            }
+            if (args[0].toString().isEmpty()) {
+                binding.recyclerView.smoothScrollToPosition(chats.size - 1)
+
+                return@launch
+            }
+
+            chats[chats.size - 1].message += args[0]
+            binding.recyclerView.adapter?.notifyItemChanged(chats.size - 1)
+        }
+    }
+
+
+    private val onErrorMessage = Emitter.Listener { args ->
+        Log.e("dong", args[0].toString())
     }
 }
