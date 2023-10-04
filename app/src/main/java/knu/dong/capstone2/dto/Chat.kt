@@ -1,3 +1,3 @@
 package knu.dong.capstone2.dto
 
-data class Chat(val message: String, val isUserMessage: Boolean)
+data class Chat(var message: String, val isUserMessage: Boolean)
