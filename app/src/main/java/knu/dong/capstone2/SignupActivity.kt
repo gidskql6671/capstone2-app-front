@@ -4,10 +4,24 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import knu.dong.capstone2.common.HttpRequestHelper
 import knu.dong.capstone2.databinding.ActivitySignupBinding
+import knu.dong.capstone2.dto.SignupDto
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class SignupActivity : AppCompatActivity() {
+class SignupActivity : AppCompatActivity(), CoroutineScope {
+    private lateinit var job: Job
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
     private lateinit var binding: ActivitySignupBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,18 +29,54 @@ class SignupActivity : AppCompatActivity() {
 
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        job = Job()
 
         checkAllInputConfirm()
 
         binding.btnSignup.setOnClickListener {
-            val email = binding.editEmail.text
-            val password = binding.editPassword.text
+            val email = binding.editEmail.text.toString()
+            val password = binding.editPassword.text.toString()
+            val passwordCofirm = binding.editPasswordConfirm.text.toString()
 
-            finish()
+            if (!validateEmail(email)) {
+                Toast.makeText(this@SignupActivity, "이메일 형식이 맞지 않습니다.", Toast.LENGTH_SHORT).show()
+            }
+            else if (!validatePassword(password)) {
+                Toast.makeText(this@SignupActivity, "비밀번호가 비어있습니다.", Toast.LENGTH_SHORT).show()
+            }
+            else if (!validatePasswordConfirm(password, passwordCofirm)) {
+                Toast.makeText(this@SignupActivity, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                signup(email, password)
+            }
+
         }
 
         binding.titleBar.btnBack.setOnClickListener{
             onBackPressed()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
+    private fun signup(email: String, password: String) {
+        launch(Dispatchers.Main) {
+            val res = HttpRequestHelper().post("api/users"){
+                contentType(ContentType.Application.Json)
+                setBody(SignupDto(email, password))
+            }
+
+            if (res?.status?.value?.div(100) == 2) {
+                Toast.makeText(this@SignupActivity, "회원가입에 성공했습니다.", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            else {
+                Toast.makeText(this@SignupActivity, "회원가입에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -40,13 +90,12 @@ class SignupActivity : AppCompatActivity() {
 
             override fun afterTextChanged(p0: Editable?) {
                 val email = binding.editEmail.text.toString()
-                val emailPass = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-
                 val password = binding.editPassword.text.toString()
                 val confirmPassword = binding.editPasswordConfirm.text.toString()
-                val passwordPass = password.isNotBlank() && password == confirmPassword
 
-                binding.btnSignup.isEnabled = emailPass && passwordPass
+                binding.btnSignup.isEnabled = validateEmail(email)
+                        && validatePassword(password)
+                        &&validatePasswordConfirm(password, confirmPassword)
             }
         }
 
@@ -54,5 +103,13 @@ class SignupActivity : AppCompatActivity() {
         binding.editEmail.addTextChangedListener(textWatcher)
         binding.editPasswordConfirm.addTextChangedListener(textWatcher)
     }
+
+    private fun validateEmail(email: String) =
+        email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+    private fun validatePassword(password: String) = password.isNotBlank()
+
+    private fun validatePasswordConfirm(password: String, confirmPassword: String) =
+        password == confirmPassword
 
 }
