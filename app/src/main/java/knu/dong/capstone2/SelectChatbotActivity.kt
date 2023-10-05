@@ -42,7 +42,7 @@ class SelectChatbotActivity: AppCompatActivity(), CoroutineScope {
 
     private fun getChatbotRoles() {
         launch(Dispatchers.Main) {
-            val res = HttpRequestHelper()
+            val res = HttpRequestHelper(this@SelectChatbotActivity)
                 .get("api/chatbots", GetChatbotsDto::class.java)
                 ?: GetChatbotsDto()
 

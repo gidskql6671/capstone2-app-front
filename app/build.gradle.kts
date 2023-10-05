@@ -20,8 +20,10 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "SERVER_URL", "\"http://10.0.2.2:8080\"")
-            buildConfigField("String", "WEBSOCKET_HOST", "\"http://10.0.2.2\"")
+//            buildConfigField("String", "SERVER_URL", "\"http://10.0.2.2:8080\"")
+            buildConfigField("String", "SERVER_URL", "\"http://knu-ai.koreacentral.cloudapp.azure.com:8080\"")
+//            buildConfigField("String", "WEBSOCKET_HOST", "\"http://10.0.2.2\"")
+            buildConfigField("String", "WEBSOCKET_HOST", "\"http://knu-ai.koreacentral.cloudapp.azure.com\"")
             buildConfigField("int", "WEBSOCKET_PORT", "8081")
         }
 
@@ -47,7 +49,6 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.recyclerview:recyclerview:1.3.1")

@@ -22,6 +22,7 @@ import knu.dong.capstone2.dto.Chatbot
 import knu.dong.capstone2.dto.GetChatsDto
 import knu.dong.capstone2.dto.SendChatReqDto
 import knu.dong.capstone2.dto.SendChatResDto
+import knu.dong.capstone2.dto.SendChatUsingSocketReqDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -80,7 +81,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
                 smoothScrollToPosition(chats.size - 1)
             }
 //            sendChat(chatbot, message)
-            sendChatUsingSocket(chatbot, message)
+            sendChatUsingSocket(chatbot, 1, message)
         }
 
 
@@ -102,7 +103,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
     private fun getChatbotChats(chatbot: Chatbot) {
         launch(Dispatchers.Main) {
             val resChats =
-                HttpRequestHelper()
+                HttpRequestHelper(this@ChatbotActivity)
                     .get("api/chatbots/chats", GetChatsDto::class.java) {
                         url {
                             parameters.append("chatbotId", chatbot.id.toString())
@@ -111,9 +112,11 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
                     ?: GetChatsDto()
 
             chats.addAll(resChats.chats)
-            binding.recyclerView.apply {
-                adapter?.notifyItemRangeInserted(0, chats.size)
-                smoothScrollToPosition(chats.size - 1)
+            if (chats.isNotEmpty()) {
+                binding.recyclerView.apply {
+                    adapter?.notifyItemRangeInserted(0, chats.size)
+                    smoothScrollToPosition(chats.size - 1)
+                }
             }
 
         }
@@ -121,7 +124,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
 
     private fun sendChat(chatbot: Chatbot, message: String) {
         launch(Dispatchers.Main) {
-            val resChat = HttpRequestHelper().post("api/chatbots/chats", SendChatResDto::class.java) {
+            val resChat = HttpRequestHelper(this@ChatbotActivity).post("api/chatbots/chats", SendChatResDto::class.java) {
                 contentType(ContentType.Application.Json)
                 setBody(SendChatReqDto(chatbot.id, message))
             }
@@ -135,7 +138,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
     }
 
     private var isFirst = true
-    private fun sendChatUsingSocket(chatbot: Chatbot, message: String) {
+    private fun sendChatUsingSocket(chatbot: Chatbot, userId: Long, message: String) {
         launch(Dispatchers.Main) {
             try {
                 val socket = WebSocketHelper().socket
@@ -146,7 +149,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
                 socket.on("chats/messages/$chatbotId", onChatbotMessage)
 
                 isFirst = true
-                val sendData = Gson().toJson(SendChatReqDto(chatbotId, message))
+                val sendData = Gson().toJson(SendChatUsingSocketReqDto(chatbotId, userId, message))
                 socket.emit("chats/messages", sendData)
             }catch (err: Exception) {
                 Log.d("dong", err.stackTraceToString())

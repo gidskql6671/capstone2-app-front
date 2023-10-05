@@ -1,5 +1,6 @@
 package knu.dong.capstone2.common
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonParser
@@ -18,16 +19,15 @@ import knu.dong.capstone2.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class HttpRequestHelper {
-    companion object {
-        private val client: HttpClient = HttpClient(CIO) {
-            install(ContentNegotiation) {
-                json()
-            }
-            install(HttpCookies)
+class HttpRequestHelper(context: Context) {
+    private val client: HttpClient = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+        install(HttpCookies) {
+            storage = FileCookieStorage(context)
         }
     }
-
     private val TAG = "HttpRequestHelper"
     private val domain: String = BuildConfig.SERVER_URL
 

@@ -1,6 +1,7 @@
 package knu.dong.capstone2
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +9,7 @@ import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -25,6 +27,7 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var userInfo: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +35,7 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         job = Job()
+        userInfo = getSharedPreferences("user_info", MODE_PRIVATE)
 
         binding.btnSignup.setOnClickListener {
             val intent = Intent(this, SignupActivity::class.java)
@@ -91,12 +95,19 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
 
     private fun login(email: String, password: String) {
         launch(Dispatchers.Main) {
-            val res = HttpRequestHelper().post("api/users/login"){
+            val res = HttpRequestHelper(this@LoginActivity).post("api/users/login"){
                 contentType(ContentType.Application.Json)
                 setBody(LoginDto(email, password))
             }
 
             if (res?.status?.value?.div(100) == 2) {
+//                val { id: userId }: LoginResponseDto = res.body()
+                val userId = 1L
+
+                userInfo.edit {
+                    putLong("id", userId)
+                }
+
                 val intent = Intent(this@LoginActivity, SelectChatbotActivity::class.java)
                 startActivity(intent)
                 finish()
