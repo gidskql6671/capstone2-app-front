@@ -44,5 +44,5 @@ class FileCookieStorage(context: Context): CookiesStorage {
             ?: emptyList()
     }
 
-    private fun Url.isImportant() = host == domain // 호스트 하나의 쿠키만 저장하는 경우
+    private fun Url.isImportant() = true
 }

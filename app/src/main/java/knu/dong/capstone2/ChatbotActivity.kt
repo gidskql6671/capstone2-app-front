@@ -1,6 +1,7 @@
 package knu.dong.capstone2
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -36,6 +37,7 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
     private lateinit var binding: ActivityChatbotBinding
+    private lateinit var userInfo: SharedPreferences
     private val chats = mutableListOf<Chat>()
 
 
@@ -49,9 +51,10 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
 
         binding = ActivityChatbotBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         job = Job()
+        userInfo = getSharedPreferences("user_info", MODE_PRIVATE)
 
+        val userId = userInfo.getLong("id", -1)
         val chatbot = intent.getSerializable("chatbot", Chatbot::class.java)
         if (chatbot == null) {
             finish()
@@ -81,11 +84,11 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
                 smoothScrollToPosition(chats.size - 1)
             }
 //            sendChat(chatbot, message)
-            sendChatUsingSocket(chatbot, 1, message)
+            sendChatUsingSocket(chatbot, userId, message)
         }
 
 
-        getChatbotChats(chatbot)
+        getChatbotChats(chatbot, userId)
     }
 
     override fun onDestroy() {
@@ -100,13 +103,14 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
         }
     }
 
-    private fun getChatbotChats(chatbot: Chatbot) {
+    private fun getChatbotChats(chatbot: Chatbot, userId: Long) {
         launch(Dispatchers.Main) {
             val resChats =
                 HttpRequestHelper(this@ChatbotActivity)
                     .get("api/chatbots/chats", GetChatsDto::class.java) {
                         url {
                             parameters.append("chatbotId", chatbot.id.toString())
+                            parameters.append("userId", userId.toString())
                         }
                     }
                     ?: GetChatsDto()
