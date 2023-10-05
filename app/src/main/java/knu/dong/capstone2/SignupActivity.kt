@@ -65,7 +65,7 @@ class SignupActivity : AppCompatActivity(), CoroutineScope {
 
     private fun signup(email: String, password: String) {
         launch(Dispatchers.Main) {
-            val res = HttpRequestHelper().post("api/users"){
+            val res = HttpRequestHelper(this@SignupActivity).post("api/users"){
                 contentType(ContentType.Application.Json)
                 setBody(SignupDto(email, password))
             }
