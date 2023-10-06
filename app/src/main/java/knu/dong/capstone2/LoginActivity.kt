@@ -10,12 +10,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import io.ktor.client.call.body
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import knu.dong.capstone2.common.HttpRequestHelper
 import knu.dong.capstone2.databinding.ActivityLoginBinding
 import knu.dong.capstone2.dto.LoginDto
+import knu.dong.capstone2.dto.LoginResponseDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -101,11 +103,10 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
             }
 
             if (res?.status?.value?.div(100) == 2) {
-//                val { id: userId }: LoginResponseDto = res.body()
-                val userId = 1L
+                val user: LoginResponseDto = res.body()
 
                 userInfo.edit {
-                    putLong("id", userId)
+                    putLong("id", user.id)
                 }
 
                 val intent = Intent(this@LoginActivity, SelectChatbotActivity::class.java)
