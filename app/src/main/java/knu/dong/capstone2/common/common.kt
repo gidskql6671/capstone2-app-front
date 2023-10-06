@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.AttrRes
+import io.ktor.client.statement.HttpResponse
 import java.io.Serializable
 
 
@@ -29,3 +30,5 @@ fun <T: Serializable> Intent.getSerializable(key: String, clazz: Class<T>): T? {
         this.getSerializableExtra(key) as T?
     }
 }
+
+fun HttpResponse.ok(): Boolean = this.status.value.div(100) == 2

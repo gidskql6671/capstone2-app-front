@@ -10,7 +10,9 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import knu.dong.capstone2.common.HttpRequestHelper
+import knu.dong.capstone2.common.ok
 import knu.dong.capstone2.databinding.ActivitySignupBinding
+import knu.dong.capstone2.dto.SendVerifyRequestDto
 import knu.dong.capstone2.dto.SignupDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,13 +35,28 @@ class SignupActivity : AppCompatActivity(), CoroutineScope {
 
         checkAllInputConfirm()
 
+        binding.btnVerifyCode.setOnClickListener {
+            val email = binding.editEmail.text.toString()
+
+            if (validateEmail(email)) {
+                sendVerify(email)
+            }
+            else {
+                Toast.makeText(this, "이메일 형식이 맞지 않습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.btnSignup.setOnClickListener {
             val email = binding.editEmail.text.toString()
+            val verifyCode = binding.editVerifyCode.text.toString()
             val password = binding.editPassword.text.toString()
             val passwordCofirm = binding.editPasswordConfirm.text.toString()
 
             if (!validateEmail(email)) {
                 Toast.makeText(this@SignupActivity, "이메일 형식이 맞지 않습니다.", Toast.LENGTH_SHORT).show()
+            }
+            else if (!validateVerifyCode(verifyCode)) {
+                Toast.makeText(this@SignupActivity, "인증 코드가 비어있습니다.", Toast.LENGTH_SHORT).show()
             }
             else if (!validatePassword(password)) {
                 Toast.makeText(this@SignupActivity, "비밀번호가 비어있습니다.", Toast.LENGTH_SHORT).show()
@@ -48,7 +65,7 @@ class SignupActivity : AppCompatActivity(), CoroutineScope {
                 Toast.makeText(this@SignupActivity, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
             }
             else {
-                signup(email, password)
+                signup(email, verifyCode.toInt(), password)
             }
 
         }
@@ -63,19 +80,37 @@ class SignupActivity : AppCompatActivity(), CoroutineScope {
         job.cancel()
     }
 
-    private fun signup(email: String, password: String) {
+    private fun signup(email: String, verifyCode: Int, password: String) {
         launch(Dispatchers.Main) {
             val res = HttpRequestHelper(this@SignupActivity).post("api/users"){
                 contentType(ContentType.Application.Json)
-                setBody(SignupDto(email, password))
+                setBody(SignupDto(email, verifyCode, password))
             }
 
-            if (res?.status?.value?.div(100) == 2) {
+            if (res?.ok() == true) {
                 Toast.makeText(this@SignupActivity, "회원가입에 성공했습니다.", Toast.LENGTH_SHORT).show()
                 finish()
             }
             else {
                 Toast.makeText(this@SignupActivity, "회원가입에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun sendVerify(email: String) {
+        launch(Dispatchers.Main) {
+            val res = HttpRequestHelper(this@SignupActivity).post("api/users/sendVerifyEmail") {
+                contentType(ContentType.Application.Json)
+                setBody(SendVerifyRequestDto(email))
+            }
+
+            if (res?.ok() == true) {
+                Toast.makeText(this@SignupActivity, "인증 코드를 전송했습니다.", Toast.LENGTH_SHORT).show()
+                binding.btnVerifyCode.isEnabled = false
+                binding.editVerifyCode.isEnabled = true
+            }
+            else {
+                Toast.makeText(this@SignupActivity, "인증 코드 전송이 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -90,22 +125,27 @@ class SignupActivity : AppCompatActivity(), CoroutineScope {
 
             override fun afterTextChanged(p0: Editable?) {
                 val email = binding.editEmail.text.toString()
+                val verifyCode = binding.editVerifyCode.text.toString()
                 val password = binding.editPassword.text.toString()
                 val confirmPassword = binding.editPasswordConfirm.text.toString()
 
                 binding.btnSignup.isEnabled = validateEmail(email)
+                        && validateVerifyCode(verifyCode)
                         && validatePassword(password)
-                        &&validatePasswordConfirm(password, confirmPassword)
+                        && validatePasswordConfirm(password, confirmPassword)
             }
         }
 
-        binding.editPassword.addTextChangedListener(textWatcher)
         binding.editEmail.addTextChangedListener(textWatcher)
+        binding.editVerifyCode.addTextChangedListener(textWatcher)
+        binding.editPassword.addTextChangedListener(textWatcher)
         binding.editPasswordConfirm.addTextChangedListener(textWatcher)
     }
 
     private fun validateEmail(email: String) =
         email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+    private fun validateVerifyCode(code: String) = code.isNotBlank()
 
     private fun validatePassword(password: String) = password.isNotBlank()
 
