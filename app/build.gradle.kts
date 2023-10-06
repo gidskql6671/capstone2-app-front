@@ -12,18 +12,16 @@ android {
         applicationId = "knu.dong.capstone2"
         minSdk = 24
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-//            buildConfigField("String", "SERVER_URL", "\"http://10.0.2.2:8080\"")
-            buildConfigField("String", "SERVER_URL", "\"http://knu-ai.koreacentral.cloudapp.azure.com:8080\"")
-//            buildConfigField("String", "WEBSOCKET_HOST", "\"http://10.0.2.2\"")
-            buildConfigField("String", "WEBSOCKET_HOST", "\"http://knu-ai.koreacentral.cloudapp.azure.com\"")
+            buildConfigField("String", "SERVER_URL", "\"http://10.0.2.2:8080\"")
+            buildConfigField("String", "WEBSOCKET_HOST", "\"http://10.0.2.2\"")
             buildConfigField("int", "WEBSOCKET_PORT", "8081")
         }
 
@@ -33,6 +31,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            buildConfigField("String", "SERVER_URL", "\"http://knu-ai.koreacentral.cloudapp.azure.com:8080\"")
+            buildConfigField("String", "WEBSOCKET_HOST", "\"http://knu-ai.koreacentral.cloudapp.azure.com\"")
+            buildConfigField("int", "WEBSOCKET_PORT", "8081")
         }
     }
     compileOptions {
