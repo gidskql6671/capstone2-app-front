@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
@@ -186,6 +187,16 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
 
 
     private val onErrorMessage = Emitter.Listener { args ->
-        Log.e("dong", args[0].toString())
+        launch(Dispatchers.Main) {
+            val msg = args[0].toString()
+            Log.e("dong", msg)
+
+            Toast.makeText(this@ChatbotActivity, msg, Toast.LENGTH_SHORT).show()
+            chats.removeLast()
+            binding.recyclerView.apply {
+                adapter?.notifyItemRemoved(chats.size)
+                smoothScrollToPosition(chats.size - 1)
+            }
+        }
     }
 }
