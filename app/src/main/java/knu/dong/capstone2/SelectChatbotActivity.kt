@@ -29,6 +29,7 @@ class SelectChatbotActivity: AppCompatActivity(), CoroutineScope {
         setContentView(binding.root)
 
         binding.titleBar.btnBack.visibility = View.INVISIBLE
+        binding.titleBar.title.text = "챗봇 선택"
 
         job = Job()
 

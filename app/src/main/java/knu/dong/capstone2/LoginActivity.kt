@@ -46,6 +46,7 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         }
 
         binding.titleBar.btnBack.visibility = View.INVISIBLE
+        binding.titleBar.title.visibility = View.INVISIBLE
 
         binding.btnLogin.setOnClickListener {
             val email = binding.editEmail.text.toString()
