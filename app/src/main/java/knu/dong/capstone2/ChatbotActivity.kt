@@ -67,6 +67,11 @@ class ChatbotActivity: AppCompatActivity(), CoroutineScope {
             onBackPressed()
         }
         binding.titleBar.title.text = chatbot.name
+        binding.titleBar.btnAccount.setOnClickListener {
+            val intent = Intent(this, UserActivity::class.java)
+
+            startActivity(intent)
+        }
 
         binding.btnSend.setOnClickListener {
             val message = binding.editQuestion.text.toString()

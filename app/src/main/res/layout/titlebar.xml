@@ -27,13 +27,12 @@
         android:gravity="center"/>
 
     <ImageButton
-        android:id="@+id/btn_tmp"
+        android:id="@+id/btn_account"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
-        android:visibility="invisible"
         android:scaleType="fitXY"
         android:background="@null"
-        android:src="@drawable/round_arrow_back_24" />
+        android:src="@drawable/baseline_account_circle_24" />
 
 </LinearLayout>

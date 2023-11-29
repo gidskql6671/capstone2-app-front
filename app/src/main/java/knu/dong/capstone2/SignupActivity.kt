@@ -75,6 +75,7 @@ class SignupActivity : AppCompatActivity(), CoroutineScope {
             onBackPressed()
         }
         binding.titleBar.title.visibility = View.INVISIBLE
+        binding.titleBar.btnAccount.visibility = View.INVISIBLE
     }
 
     override fun onDestroy() {
