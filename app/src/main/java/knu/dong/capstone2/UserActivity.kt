@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import knu.dong.capstone2.common.HttpRequestHelper
 import knu.dong.capstone2.databinding.ActivityUserBinding
+import knu.dong.capstone2.dto.UserDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +21,7 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
     private lateinit var binding: ActivityUserBinding
-    private lateinit var userInfo: SharedPreferences
+    private lateinit var sharedUserInfo: SharedPreferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +30,7 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
         binding = ActivityUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
         job = Job()
-        userInfo = getSharedPreferences("user_info", MODE_PRIVATE)
+        sharedUserInfo = getSharedPreferences("user_info", MODE_PRIVATE)
 
         binding.titleBar.btnBack.setOnClickListener{
             onBackPressed()
@@ -40,6 +41,8 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
         binding.btnLogout.setOnClickListener {
             logout()
         }
+
+        showUserInfo()
     }
 
     override fun onDestroy() {
@@ -50,13 +53,24 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
     private fun logout() {
         launch(Dispatchers.Main) {
             HttpRequestHelper(this@UserActivity).post("api/users/logout")
-            userInfo.edit {
+            sharedUserInfo.edit {
                 remove("id")
             }
 
             val intent = Intent(this@UserActivity, LoginActivity::class.java)
             startActivity(intent)
             ActivityCompat.finishAffinity(this@UserActivity)
+        }
+    }
+
+    private fun showUserInfo() {
+        val userId = sharedUserInfo.getLong("id", -1)
+
+        launch(Dispatchers.Main) {
+            val user = HttpRequestHelper(this@UserActivity)
+                .get("api/users", UserDto::class.java) ?: return@launch
+
+            binding.ratelimit.text = "${user?.currentUsedCount}/${user?.rateLimit}"
         }
     }
 }
