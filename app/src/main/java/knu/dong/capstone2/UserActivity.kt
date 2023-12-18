@@ -2,6 +2,7 @@ package knu.dong.capstone2
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,7 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
         get() = Dispatchers.Main + job
     private lateinit var binding: ActivityUserBinding
     private lateinit var sharedUserInfo: SharedPreferences
+    private lateinit var user: UserDto
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +42,10 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
 
         binding.btnLogout.setOnClickListener {
             logout()
+        }
+
+        binding.btnPremium.setOnClickListener {
+            togglePremium()
         }
 
         showUserInfo()
@@ -63,14 +69,38 @@ class UserActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    private fun showUserInfo() {
-        val userId = sharedUserInfo.getLong("id", -1)
-
+    private fun togglePremium() {
         launch(Dispatchers.Main) {
-            val user = HttpRequestHelper(this@UserActivity)
+            if (user.isPremium) {
+                HttpRequestHelper(this@UserActivity).delete("api/users/premium")
+                binding.btnPremium.text = "프리미엄 구독하기"
+                binding.btnPremium.setBackgroundColor(Color.GRAY)
+            } else {
+                HttpRequestHelper(this@UserActivity).post("api/users/premium")
+                binding.btnPremium.text = "프리미엄"
+                binding.btnPremium.setBackgroundColor(getColor(R.color.primary))
+            }
+
+            user = HttpRequestHelper(this@UserActivity)
                 .get("api/users", UserDto::class.java) ?: return@launch
 
             binding.ratelimit.text = "${user?.currentUsedCount}/${user?.rateLimit}"
+        }
+    }
+
+    private fun showUserInfo() {
+        launch(Dispatchers.Main) {
+            user = HttpRequestHelper(this@UserActivity)
+                .get("api/users", UserDto::class.java) ?: return@launch
+
+            binding.ratelimit.text = "${user?.currentUsedCount}/${user?.rateLimit}"
+            if (user.isPremium) {
+                binding.btnPremium.text = "프리미엄"
+                binding.btnPremium.setBackgroundColor(getColor(R.color.primary))
+            } else {
+                binding.btnPremium.text = "프리미엄 구독하기"
+                binding.btnPremium.setBackgroundColor(Color.GRAY)
+            }
         }
     }
 }

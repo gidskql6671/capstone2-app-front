@@ -9,6 +9,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
@@ -105,4 +106,43 @@ class HttpRequestHelper(context: Context) {
                 null
             }
         }
+
+    suspend fun delete(path: String, block: HttpRequestBuilder.() -> Unit = {}): HttpResponse? =
+        withContext(Dispatchers.IO) {
+            try {
+                client.delete("$domain/$path", block)
+            }
+            catch (err: Exception) {
+                Log.e("${TAG}_get", err.toString())
+
+                null
+            }
+        }
+
+    suspend fun <T> delete(path: String, clazz: Class<T>, block: HttpRequestBuilder.() -> Unit = {}): T? =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "$domain/$path"
+
+                val response: HttpResponse = client.delete(url, block)
+                val responseStatus = response.status
+
+                if (responseStatus.value / 100 == 2) {
+                    val jsonObject = JsonParser.parseString(response.bodyAsText()).asJsonObject
+                    val httpApiResponse = Gson().fromJson(jsonObject, clazz)
+
+                    httpApiResponse
+                } else {
+                    Log.e("${TAG}_get", "$responseStatus")
+
+                    null
+                }
+            }
+            catch (err: Exception) {
+                Log.e("${TAG}_get", err.toString())
+
+                null
+            }
+        }
+
 }

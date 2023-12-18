@@ -28,6 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginBottom="25dp"
             android:gravity="center">
 
             <TextView
@@ -44,8 +45,16 @@
                 android:text="0/10"
                 android:textStyle="bold"
                 android:textSize="24sp" />
-
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_premium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="프리미엄 구독하기"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:layout_marginBottom="25dp" />
     </LinearLayout>
 
 </LinearLayout>
